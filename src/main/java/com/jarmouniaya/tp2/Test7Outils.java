@@ -14,12 +14,13 @@ public class Test7Outils {
                 .apiKey(System.getenv("GEMINI_KEY"))
                 .modelName("gemini-3.5-flash-lite")   // le même nom de modèle que dans les autres tests
                 .temperature(0.7)
+                .logRequestsAndResponses(true)       // Activation du logging JSON des requêtes et réponses
                 .build();
 
         AssistantMeteo assistant = AiServices.builder(AssistantMeteo.class)
                 .chatModel(model)
                 .chatMemory(MessageWindowChatMemory.withMaxMessages(20)) // les outils génèrent des messages
-                .tools(new MeteoTool())                                   // ajout de l'outil
+                .tools(new MeteoTool())                                   // ajout des outils (météo et géolocalisation)
                 .build();
 
         conversationAvec(assistant);
