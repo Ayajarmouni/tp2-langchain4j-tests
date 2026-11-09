@@ -44,6 +44,25 @@ public class MeteoTool {
         }
     }
 
+    @Tool("Retourne la latitude et la longitude d'une ville, sous la forme d'un tableau [latitude, longitude]. "
+            + "Le nom de la ville doit être en anglais (par exemple 'Rabat,Morocco' pour lever une ambiguïté).")
+    public double[] getCoordonnees(@P("Nom de la ville, en anglais") String ville) {
+        try {
+            String nom = java.net.URLEncoder.encode(ville, java.nio.charset.StandardCharsets.UTF_8);
+            String url = "https://geocoding-api.open-meteo.com/v1/search?name=" + nom + "&count=1";
+            JsonNode resultats = lire(url).path("results");
+            if (resultats.isEmpty()) {
+                throw new RuntimeException("Ville introuvable : " + ville);
+            }
+            JsonNode premier = resultats.get(0);
+            return new double[]{premier.path("latitude").asDouble(), premier.path("longitude").asDouble()};
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RuntimeException("Erreur de géolocalisation : " + e.getMessage(), e);
+        }
+    }
+
     private JsonNode lire(String url) throws Exception {
         HttpRequest requete = HttpRequest.newBuilder(URI.create(url)).GET().build();
         HttpResponse<String> reponse = CLIENT.send(requete, HttpResponse.BodyHandlers.ofString());
